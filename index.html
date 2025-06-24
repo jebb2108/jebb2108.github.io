@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,6 +123,39 @@
             color: #6a11cb;
         }
 
+        .error-state {
+            text-align: center;
+            padding: 40px;
+            color: #ff6b6b;
+        }
+
+        .error-state h2 {
+            margin-bottom: 20px;
+            color: #ff0000;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 480px) {
             .word {
                 font-size: 28px;
@@ -146,52 +179,85 @@
         </div>
 
         <div id="word-container" class="word-container">
-            <div class="empty-state">
-                <h2>Загрузка словаря...</h2>
-                <p>Пожалуйста, подождите</p>
+            <div class="loading">
+                <div class="loader"></div>
+                <p>Загрузка словаря...</p>
             </div>
         </div>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        // Конфигурация
+        const BACKEND_URL = "http://localhost:8000";  // Замените на ваш URL бэкенда
+        const DEBUG_MODE = true;  // Переключить на false для продакшена
 
+        // Глобальные переменные
         let words = [];
         let currentIndex = 0;
+        let tg = null;
 
-        // Получение данных словаря
-        async function fetchWords() {
+        // Инициализация Telegram WebApp
+        function initTelegramWebApp() {
             try {
-                const response = await fetch(`/api/words?user_id=${tg.initDataUnsafe.user.id}`);
-                if (!response.ok) {
-                    throw new Error('Ошибка загрузки слов');
-                }
-                words = await response.json();
+                if (window.Telegram && window.Telegram.WebApp) {
+                    tg = window.Telegram.WebApp;
+                    tg.expand();
 
-                if (words.length > 0) {
-                    renderWord(0);
+                    if (DEBUG_MODE) {
+                        console.log("Telegram WebApp initialized");
+                        console.log("Init Data:", tg.initData);
+                        console.log("Init Data Unsafe:", tg.initDataUnsafe);
+                    }
+
+                    return true;
                 } else {
-                    showEmptyState();
+                    showErrorState("Telegram WebApp SDK не загружен");
+                    return false;
                 }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                document.getElementById('word-container').innerHTML = `
-                    <div class="empty-state">
-                        <h2>Ошибка загрузки</h2>
-                        <p>${error.message}</p>
-                    </div>
-                `;
+            } catch (e) {
+                showErrorState(`Ошибка инициализации: ${e.message}`);
+                return false;
             }
+        }
+
+        // Показать состояние загрузки
+        function showLoading() {
+            document.getElementById('word-container').innerHTML = `
+                <div class="loading">
+                    <div class="loader"></div>
+                    <p>Загрузка словаря...</p>
+                </div>
+            `;
+        }
+
+        // Показать состояние ошибки
+        function showErrorState(message) {
+            document.getElementById('word-container').innerHTML = `
+                <div class="error-state">
+                    <h2>Ошибка загрузки</h2>
+                    <p>${message}</p>
+                    <p>Попробуйте позже или обратитесь в поддержку</p>
+                </div>
+            `;
+        }
+
+        // Показать состояние пустого словаря
+        function showEmptyState() {
+            document.getElementById('word-container').innerHTML = `
+                <div class="empty-state">
+                    <h2>Ваш словарь пуст</h2>
+                    <p>Добавьте слова через бота</p>
+                </div>
+            `;
         }
 
         // Отображение слова
         function renderWord(index) {
             const word = words[index];
             document.getElementById('word-container').innerHTML = `
-                <div class="word">${word.word}</div>
-                <div class="pos">${word.part_of_speech}</div>
-                <div class="translation">${word.translation || 'Нет перевода'}</div>
+                <div class="word">${escapeHtml(word.word)}</div>
+                <div class="pos">${escapeHtml(word.part_of_speech)}</div>
+                <div class="translation">${escapeHtml(word.translation || 'Нет перевода')}</div>
                 <div class="navigation">
                     <button class="nav-btn" id="prev-btn" ${index === 0 ? 'disabled' : ''}>
                         ← Предыдущее
@@ -203,6 +269,7 @@
                 <div class="counter">${index + 1} из ${words.length}</div>
             `;
 
+            // Обработчики кнопок
             document.getElementById('prev-btn').addEventListener('click', () => {
                 if (currentIndex > 0) {
                     currentIndex--;
@@ -218,18 +285,86 @@
             });
         }
 
-        // Показ состояния пустого словаря
-        function showEmptyState() {
-            document.getElementById('word-container').innerHTML = `
-                <div class="empty-state">
-                    <h2>Ваш словарь пуст</h2>
-                    <p>Добавьте слова через бота</p>
-                </div>
-            `;
+        // Экранирование HTML для безопасности
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', fetchWords);
+        // Получение данных словаря
+        async function fetchWords() {
+            showLoading();
+
+            try {
+                // Проверка инициализации Telegram WebApp
+                if (!tg) {
+                    if (!initTelegramWebApp()) {
+                        return;
+                    }
+                }
+
+                // Получаем ID пользователя
+                const user = tg.initDataUnsafe.user;
+                if (!user || !user.id) {
+                    throw new Error("Не удалось получить ID пользователя из Telegram");
+                }
+
+                const user_id = user.id;
+                if (DEBUG_MODE) console.log(`Fetching words for user: ${user_id}`);
+
+                // Формируем URL запроса
+                const apiUrl = `${BACKEND_URL}/api/words?user_id=${user_id}`;
+                if (DEBUG_MODE) console.log("API URL:", apiUrl);
+
+                // Выполняем запрос
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Ошибка сервера: ${response.status} - ${errorText}`);
+                }
+
+                words = await response.json();
+
+                if (DEBUG_MODE) console.log("Received words:", words);
+
+                if (words.length > 0) {
+                    currentIndex = 0;
+                    renderWord(0);
+                } else {
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки слов:', error);
+                showErrorState(error.message);
+
+                // Для отладки: попробуем загрузить тестовые данные
+                if (DEBUG_MODE) {
+                    setTimeout(() => {
+                        console.warn("Using test data for debugging");
+                        words = [
+                            {word: "apple", part_of_speech: "noun", translation: "яблоко"},
+                            {word: "run", part_of_speech: "verb", translation: "бежать"},
+                            {word: "beautiful", part_of_speech: "adjective", translation: "красивый"}
+                        ];
+                        renderWord(0);
+                    }, 3000);
+                }
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Инициализируем Telegram WebApp
+            initTelegramWebApp();
+
+            // Загружаем слова
+            fetchWords();
+        });
     </script>
 </body>
 </html>
