@@ -188,7 +188,26 @@
 
     <script>
         // Конфигурация
-        const BACKEND_URL = "http://localhost:8000";  // Замените на ваш URL бэкенда
+        const BACKEND_URL =  (() => {
+              // Принудительное указание для отладки
+              if (window.location.search.includes('force_backend')) {
+                return new URLSearchParams(window.location.search).get('force_backend');
+              }
+
+              // Автоматическое определение
+              const host = window.location.hostname;
+
+              if (host === "jebb2108.github.io") {
+                return "https://your-production-server.com";
+              }
+
+              if (host === "localhost" || host === "127.0.0.1") {
+                return "http://localhost:8000";
+              }
+
+              // Для всех остальных случаев (включая ngrok)
+              return window.location.origin.replace(window.location.hostname, host);
+        })();
         const DEBUG_MODE = true;  // Переключить на false для продакшена
 
         // Глобальные переменные
