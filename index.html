@@ -14,7 +14,7 @@
         }
         
         body {
-            background: #f0f5e9;
+            background: #fef9e7; /* Пожелтевший белый фон */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,20 +25,28 @@
         .book-container {
             position: relative;
             width: 100%;
-            max-width: 900px;
-            background: #fff;
+            max-width: 1000px;
+            background: #fffdf6; /* Слегка желтоватый фон */
             border-radius: 10px;
-            box-shadow: 0 15px 40px rgba(0, 100, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            border: 1px solid #d4e8d4;
+            border: 1px solid #f0e6d2;
+            display: flex;
+            min-height: 700px;
+        }
+        
+        /* Основное содержимое */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         .book-header {
-            background: #2e7d32;
+            background: #2e7d32; /* Зеленый цвет для заголовка */
             color: white;
             padding: 25px 30px;
             text-align: center;
-            position: relative;
         }
         
         .book-title {
@@ -56,52 +64,51 @@
             font-size: 1rem;
         }
         
-        /* Закладки */
-        .bookmarks {
-            display: flex;
-            background: #f8fff8;
-            border-bottom: 2px solid #2e7d32;
-            padding: 0 20px;
+        /* Закладки справа */
+        .bookmarks-sidebar {
+            width: 220px;
+            background: #f8f5ec;
+            border-left: 1px solid #e8e0c9;
+            padding: 20px 0;
         }
         
         .bookmark {
-            padding: 15px 25px;
-            background: #e8f5e9;
-            color: #2e7d32;
+            padding: 18px 25px;
+            color: #5a5a5a;
             font-weight: 600;
-            border: 1px solid #c8e6c9;
-            border-bottom: none;
-            border-radius: 10px 10px 0 0;
             cursor: pointer;
-            margin-right: 5px;
             transition: all 0.3s;
             position: relative;
-            top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 4px solid transparent;
         }
         
         .bookmark.active {
             background: #fff;
-            color: #1b5e20;
-            border-color: #2e7d32;
-            border-width: 2px;
-            padding-bottom: 17px;
-            z-index: 2;
-            box-shadow: 0 -3px 5px rgba(0,0,0,0.05);
-        }
-        
-        .bookmark i {
-            margin-right: 8px;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+            font-weight: 700;
         }
         
         .bookmark:hover:not(.active) {
-            background: #dcedc8;
+            background: #f0ede3;
+            color: #2e7d32;
+        }
+        
+        .bookmark i {
+            font-size: 1.3rem;
+            width: 25px;
+            text-align: center;
         }
         
         /* Страницы */
         .page {
             display: none;
             padding: 30px;
-            min-height: 500px;
+            flex: 1;
+            overflow-y: auto;
         }
         
         .page.active {
@@ -120,6 +127,9 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #e8f5e9;
             font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
         /* Формы */
@@ -130,7 +140,7 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #388e3c;
+            color: #5a5a5a;
             font-weight: 600;
         }
         
@@ -147,10 +157,10 @@
         input, select {
             width: 100%;
             padding: 14px;
-            border: 2px solid #c8e6c9;
+            border: 2px solid #e0d9c0;
             border-radius: 8px;
             font-size: 1rem;
-            background: #f8fff8;
+            background: #fff;
             transition: all 0.3s;
         }
         
@@ -161,7 +171,7 @@
         }
         
         .btn {
-            background: linear-gradient(to bottom, #2e7d32, #1b5e20);
+            background: #2e7d32; /* Зеленый цвет для кнопок */
             color: white;
             border: none;
             padding: 14px 28px;
@@ -176,9 +186,9 @@
         }
         
         .btn:hover {
-            background: linear-gradient(to bottom, #388e3c, #2e7d32);
+            background: #388e3c;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 100, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 100, 0, 0.1);
         }
         
         .btn:active {
@@ -186,14 +196,14 @@
         }
         
         .btn-secondary {
-            background: linear-gradient(to bottom, #5a6268, #4a545c);
+            background: #5a6268;
         }
         
         /* Результаты */
         #searchResult {
             margin-top: 25px;
             padding: 25px;
-            background: #e8f5e9;
+            background: #f8f9f5;
             border-radius: 8px;
             border-left: 4px solid #2e7d32;
             display: none;
@@ -220,7 +230,7 @@
         }
         
         .word-info div {
-            background: #f1f8e9;
+            background: #e8f5e9;
             padding: 10px 15px;
             border-radius: 6px;
             font-weight: 500;
@@ -230,9 +240,10 @@
         .table-container {
             max-height: 400px;
             overflow-y: auto;
-            border: 2px solid #e8f5e9;
+            border: 2px solid #f0ede3;
             border-radius: 8px;
             padding: 5px;
+            background: #fff;
         }
         
         table {
@@ -241,7 +252,7 @@
         }
         
         th, td {
-            border-bottom: 1px solid #e8f5e9;
+            border-bottom: 1px solid #f0ede3;
             padding: 15px;
             text-align: left;
         }
@@ -254,11 +265,11 @@
         }
         
         tr:nth-child(even) {
-            background-color: #f8fff8;
+            background-color: #fcfcf8;
         }
         
         tr:hover {
-            background-color: #f1f8e9;
+            background-color: #f5f7f0;
         }
         
         .actions {
@@ -300,11 +311,11 @@
         }
         
         .success {
-            background: linear-gradient(to right, #2e7d32, #4caf50);
+            background: #2e7d32;
         }
         
         .error {
-            background: linear-gradient(to right, #c62828, #d32f2f);
+            background: #c62828;
         }
         
         .loading-overlay {
@@ -341,24 +352,40 @@
             padding: 20px;
             color: #757575;
             font-size: 0.9rem;
-            background: #f8fff8;
-            border-top: 1px solid #e8f5e9;
+            background: #f8f9f5;
+            border-top: 1px solid #f0ede3;
         }
         
         /* Адаптивность */
         @media (max-width: 768px) {
-            .input-row {
+            .book-container {
                 flex-direction: column;
-                gap: 15px;
             }
             
-            .bookmarks {
-                flex-wrap: wrap;
+            .bookmarks-sidebar {
+                width: 100%;
+                display: flex;
+                overflow-x: auto;
+                padding: 0;
+                border-left: none;
+                border-top: 1px solid #e8e0c9;
             }
             
             .bookmark {
-                padding: 10px 15px;
-                font-size: 0.9rem;
+                padding: 15px 20px;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+                white-space: nowrap;
+            }
+            
+            .bookmark.active {
+                border-left: none;
+                border-bottom: 4px solid #2e7d32;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
             }
             
             .book-title {
@@ -369,16 +396,114 @@
 </head>
 <body>
     <div class="book-container">
-        <div class="book-header">
-            <div class="book-title">
-                <i class="fas fa-book"></i> Мой словарь
+        <div class="content-area">
+            <div class="book-header">
+                <div class="book-title">
+                    <i class="fas fa-book"></i> Мой словарь
+                </div>
+                <div class="user-info">
+                    Пользователь ID: <span id="userId">загрузка...</span>
+                </div>
             </div>
-            <div class="user-info">
-                Пользователь ID: <span id="userId">загрузка...</span>
+            
+            <!-- Индикатор загрузки -->
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+            </div>
+            
+            <!-- Страница добавления слова -->
+            <div id="add-word" class="page active">
+                <h2 class="page-title"><i class="fas fa-plus-circle"></i> Добавить новое слово</h2>
+                
+                <div class="form-group">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="newWord"><i class="fas fa-font"></i> Слово (английский)</label>
+                            <input type="text" id="newWord" placeholder="Введите слово">
+                        </div>
+                        <div class="input-group">
+                            <label for="partOfSpeech"><i class="fas fa-tag"></i> Часть речи</label>
+                            <select id="partOfSpeech">
+                                <option value="noun">Существительное</option>
+                                <option value="verb">Глагол</option>
+                                <option value="adjective">Прилагательное</option>
+                                <option value="adverb">Наречие</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="translation"><i class="fas fa-language"></i> Перевод (русский)</label>
+                    <input type="text" id="translation" placeholder="Введите перевод">
+                </div>
+                
+                <button class="btn" id="addWordBtn">
+                    <i class="fas fa-plus"></i> Добавить в словарь
+                </button>
+            </div>
+            
+            <!-- Страница поиска слова -->
+            <div id="search-word" class="page">
+                <h2 class="page-title"><i class="fas fa-search"></i> Поиск перевода</h2>
+                
+                <div class="input-row">
+                    <div class="input-group" style="flex: 3;">
+                        <input type="text" id="searchWord" placeholder="Введите слово для поиска">
+                    </div>
+                    <button class="btn" id="searchBtn" style="flex: 1;">
+                        <i class="fas fa-search"></i> Найти
+                    </button>
+                </div>
+                
+                <div id="searchResult">
+                    <div class="result-card">
+                        <h3>Результат поиска</h3>
+                        <div class="word-info">
+                            <div><strong>Слово:</strong> <span id="resultWord"></span></div>
+                            <div><strong>Часть речи:</strong> <span id="resultPos"></span></div>
+                        </div>
+                        <p><strong>Перевод:</strong> <span id="resultTranslation"></span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Страница со всеми словами -->
+            <div id="all-words" class="page">
+                <h2 class="page-title"><i class="fas fa-book-open"></i> Весь словарь</h2>
+                
+                <button class="btn btn-secondary" id="refreshWordsBtn">
+                    <i class="fas fa-sync"></i> Обновить список
+                </button>
+                
+                <div class="table-container" id="wordsTableContainer">
+                    <div class="loading-overlay" id="wordsLoading">
+                        <div class="spinner"></div>
+                    </div>
+                    <table id="wordsTable">
+                        <thead>
+                            <tr>
+                                <th>Слово</th>
+                                <th>Часть речи</th>
+                                <th>Перевод</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wordsList">
+                            <!-- Слова будут добавляться сюда -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="book-footer">
+                <p>Telegram Vocabulary Bot &copy; 2023 | Словарь знаний</p>
             </div>
         </div>
         
-        <div class="bookmarks">
+        <!-- Закладки справа -->
+        <div class="bookmarks-sidebar">
             <div class="bookmark active" data-page="add-word">
                 <i class="fas fa-plus-circle"></i> Добавить слово
             </div>
@@ -388,101 +513,12 @@
             <div class="bookmark" data-page="all-words">
                 <i class="fas fa-book-open"></i> Весь словарь
             </div>
-        </div>
-        
-        <!-- Индикатор загрузки -->
-        <div class="loading-overlay" id="loadingOverlay">
-            <div class="spinner"></div>
-        </div>
-        
-        <!-- Страница добавления слова -->
-        <div id="add-word" class="page active">
-            <h2 class="page-title">Добавить новое слово</h2>
-            
-            <div class="form-group">
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="newWord"><i class="fas fa-font"></i> Слово (английский)</label>
-                        <input type="text" id="newWord" placeholder="Введите слово">
-                    </div>
-                    <div class="input-group">
-                        <label for="partOfSpeech"><i class="fas fa-tag"></i> Часть речи</label>
-                        <select id="partOfSpeech">
-                            <option value="noun">Существительное</option>
-                            <option value="verb">Глагол</option>
-                            <option value="adjective">Прилагательное</option>
-                            <option value="adverb">Наречие</option>
-                            <option value="other">Другое</option>
-                        </select>
-                    </div>
-                </div>
+            <div class="bookmark" data-page="instructions">
+                <i class="fas fa-info-circle"></i> Инструкция
             </div>
-            
-            <div class="form-group">
-                <label for="translation"><i class="fas fa-language"></i> Перевод (русский)</label>
-                <input type="text" id="translation" placeholder="Введите перевод">
+            <div class="bookmark" data-page="statistics">
+                <i class="fas fa-chart-bar"></i> Статистика
             </div>
-            
-            <button class="btn" id="addWordBtn">
-                <i class="fas fa-plus"></i> Добавить в словарь
-            </button>
-        </div>
-        
-        <!-- Страница поиска слова -->
-        <div id="search-word" class="page">
-            <h2 class="page-title">Поиск перевода</h2>
-            
-            <div class="input-row">
-                <div class="input-group" style="flex: 3;">
-                    <input type="text" id="searchWord" placeholder="Введите слово для поиска">
-                </div>
-                <button class="btn" id="searchBtn" style="flex: 1;">
-                    <i class="fas fa-search"></i> Найти
-                </button>
-            </div>
-            
-            <div id="searchResult">
-                <div class="result-card">
-                    <h3>Результат поиска</h3>
-                    <div class="word-info">
-                        <div><strong>Слово:</strong> <span id="resultWord"></span></div>
-                        <div><strong>Часть речи:</strong> <span id="resultPos"></span></div>
-                    </div>
-                    <p><strong>Перевод:</strong> <span id="resultTranslation"></span></p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Страница со всеми словами -->
-        <div id="all-words" class="page">
-            <h2 class="page-title">Весь словарь</h2>
-            
-            <button class="btn btn-secondary" id="refreshWordsBtn">
-                <i class="fas fa-sync"></i> Обновить список
-            </button>
-            
-            <div class="table-container" id="wordsTableContainer">
-                <div class="loading-overlay" id="wordsLoading">
-                    <div class="spinner"></div>
-                </div>
-                <table id="wordsTable">
-                    <thead>
-                        <tr>
-                            <th>Слово</th>
-                            <th>Часть речи</th>
-                            <th>Перевод</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="wordsList">
-                        <!-- Слова будут добавляться сюда -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="book-footer">
-            <p>Telegram Vocabulary Bot &copy; 2023 | Словарь знаний</p>
         </div>
     </div>
     
@@ -546,6 +582,9 @@
             document.getElementById('addWordBtn').addEventListener('click', addWord);
             document.getElementById('searchBtn').addEventListener('click', findTranslation);
             document.getElementById('refreshWordsBtn').addEventListener('click', loadWords);
+            
+            // Загружаем слова при открытии страницы
+            loadWords();
         });
         
         // ================ API ФУНКЦИИ ================ //
@@ -568,7 +607,7 @@
                 wordsData = await response.json();
                 
                 if (wordsData.length === 0) {
-                    wordsListElement.innerHTML = '<tr><td colspan="4" style="text-align: center;">Словарь пуст</td></tr>';
+                    wordsListElement.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px;">Словарь пуст. Начните добавлять слова!</td></tr>';
                 } else {
                     wordsData.forEach(word => {
                         const row = document.createElement('tr');
@@ -596,7 +635,7 @@
                 
             } catch (error) {
                 console.error('Ошибка загрузки слов:', error);
-                wordsListElement.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #c62828;">Ошибка загрузки данных</td></tr>';
+                wordsListElement.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #c62828; padding: 30px;">Ошибка загрузки данных</td></tr>';
                 showNotification('Ошибка загрузки слов из словаря', 'error');
             } finally {
                 wordsLoading.style.display = 'none';
