@@ -3,387 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой словарь</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Telegram Vocabulary Bot</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-        }
-
-        .container {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 500px;
-            overflow: hidden;
-        }
-
-        .header {
-            background: #2575fc;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .word-container {
-            padding: 30px;
-            min-height: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .word {
-            font-size: 36px;
-            font-weight: bold;
+            background-color: #f0f2f5;
             color: #333;
-            text-align: center;
-            margin-bottom: 15px;
         }
-
-        .pos {
-            font-size: 20px;
-            color: #6a11cb;
-            text-align: center;
-            margin-bottom: 20px;
-            font-style: italic;
+        h1, h2 {
+            color: #0088cc;
         }
-
-        .translation {
-            font-size: 24px;
-            color: #2575fc;
-            text-align: center;
-            padding: 20px;
-            background: #f0f7ff;
+        .container {
+            background: white;
             border-radius: 10px;
-            margin-bottom: 30px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
-
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px 20px;
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
-
-        .nav-btn {
-            background: #6a11cb;
+        button {
+            background-color: #0088cc;
             color: white;
             border: none;
-            border-radius: 50px;
-            padding: 15px 30px;
-            font-size: 18px;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(106, 17, 203, 0.3);
+            transition: background-color 0.3s;
         }
-
-        .nav-btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            box-shadow: none;
+        button:hover {
+            background-color: #006699;
         }
-
-        .nav-btn:hover:not(:disabled) {
-            background: #2575fc;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(37, 117, 252, 0.4);
-        }
-
-        .counter {
-            text-align: center;
-            color: #666;
-            font-size: 16px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 10px;
         }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
-
-        .empty-state h2 {
-            margin-bottom: 20px;
-            color: #6a11cb;
+        th {
+            background-color: #f2f2f2;
         }
-
-        .error-state {
-            text-align: center;
-            padding: 40px;
-            color: #ff6b6b;
+        #searchResult {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9f7fe;
+            border-radius: 5px;
         }
-
-        .error-state h2 {
-            margin-bottom: 20px;
-            color: #ff0000;
-        }
-
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 480px) {
-            .word {
-                font-size: 28px;
-            }
-
-            .translation {
-                font-size: 20px;
-            }
-
-            .nav-btn {
-                padding: 12px 20px;
-                font-size: 16px;
-            }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Мой словарь</h1>
+        <h1>📚 Словарь Telegram-бота</h1>
+        
+        <!-- Форма добавления слова -->
+        <h2>➕ Добавить новое слово</h2>
+        <div>
+            <input type="text" id="newWord" placeholder="Слово (английский)" required>
+            <input type="text" id="translation" placeholder="Перевод (русский)" required>
+            <button onclick="addWord()">Добавить в словарь</button>
         </div>
+    </div>
 
-        <div id="word-container" class="word-container">
-            <div class="loading">
-                <div class="loader"></div>
-                <p>Загрузка словаря...</p>
-            </div>
+    <div class="container">
+        <!-- Поиск слова -->
+        <h2>🔍 Поиск перевода</h2>
+        <div>
+            <input type="text" id="searchWord" placeholder="Введите слово для поиска">
+            <button onclick="findTranslation()">Найти перевод</button>
+            <div id="searchResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Просмотр всех слов -->
+        <h2>📖 Все слова в словаре</h2>
+        <button onclick="toggleWords()">Показать/Скрыть слова</button>
+        <div id="allWords" class="hidden">
+            <table id="wordsTable">
+                <thead>
+                    <tr>
+                        <th>Слово</th>
+                        <th>Перевод</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="wordsList">
+                    <!-- Слова будут добавляться сюда динамически -->
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Конфигурация
-        const BACKEND_URL = (() => {
-              // Принудительное указание для отладки
-              if (window.location.search.includes('force_backend')) {
-                return new URLSearchParams(window.location.search).get('force_backend');
-              }
-
-              // Автоматическое определение
-              const host = window.location.hostname;
-
-              if (host === "jebb2108.github.io") {
-                return "https://your-production-server.com";
-              }
-
-              if (host === "localhost" || host === "127.0.0.1") {
-                return "http://localhost:8000";
-              }
-
-              // Для всех остальных случаев (включая ngrok)
-              return window.location.origin.replace(window.location.hostname, host);
-        })();
-        const DEBUG_MODE = true;  // Переключить на false для продакшена
-
-        // Глобальные переменные
-        let words = [];
-        let currentIndex = 0;
-        let tg = null;
-
-        // Инициализация Telegram WebApp
-        function initTelegramWebApp() {
-            try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    tg = window.Telegram.WebApp;
-                    tg.expand();
-
-                    if (DEBUG_MODE) {
-                        console.log("Telegram WebApp initialized");
-                        console.log("Init Data:", tg.initData);
-                        console.log("Init Data Unsafe:", tg.initDataUnsafe);
-                    }
-
-                    return true;
-                } else {
-                    showErrorState("Telegram WebApp SDK не загружен");
-                    return false;
-                }
-            } catch (e) {
-                showErrorState(`Ошибка инициализации: ${e.message}`);
-                return false;
+        // Инициализация словаря
+        function initDictionary() {
+            if (!localStorage.getItem('dictionary')) {
+                localStorage.setItem('dictionary', JSON.stringify({}));
             }
         }
 
-        // Показать состояние загрузки
-        function showLoading() {
-            document.getElementById('word-container').innerHTML = `
-                <div class="loading">
-                    <div class="loader"></div>
-                    <p>Загрузка словаря...</p>
-                </div>
-            `;
+        // Добавление нового слова
+        function addWord() {
+            const word = document.getElementById('newWord').value.trim().toLowerCase();
+            const translation = document.getElementById('translation').value.trim();
+            
+            if (!word || !translation) {
+                alert('Пожалуйста, заполните оба поля!');
+                return;
+            }
+
+            const dictionary = JSON.parse(localStorage.getItem('dictionary'));
+            dictionary[word] = translation;
+            localStorage.setItem('dictionary', JSON.stringify(dictionary));
+            
+            // Очистка полей
+            document.getElementById('newWord').value = '';
+            document.getElementById('translation').value = '';
+            
+            alert(`Слово "${word}" добавлено в словарь!`);
         }
 
-        // Показать состояние ошибки
-        function showErrorState(message) {
-            document.getElementById('word-container').innerHTML = `
-                <div class="error-state">
-                    <h2>Ошибка загрузки</h2>
-                    <p>${message}</p>
-                    <p>Попробуйте позже или обратитесь в поддержку</p>
-                </div>
-            `;
-        }
+        // Поиск перевода
+        function findTranslation() {
+            const word = document.getElementById('searchWord').value.trim().toLowerCase();
+            if (!word) {
+                alert('Введите слово для поиска');
+                return;
+            }
 
-        // Показать состояние пустого словаря
-        function showEmptyState() {
-            document.getElementById('word-container').innerHTML = `
-                <div class="empty-state">
-                    <h2>Ваш словарь пуст</h2>
-                    <p>Добавьте слова через бота</p>
-                </div>
-            `;
-        }
-
-        // Отображение слова
-        function renderWord(index) {
-            const word = words[index];
-            document.getElementById('word-container').innerHTML = `
-                <div class="word">${escapeHtml(word.word)}</div>
-                <div class="pos">${escapeHtml(word.part_of_speech)}</div>
-                <div class="translation">${escapeHtml(word.translation || 'Нет перевода')}</div>
-                <div class="navigation">
-                    <button class="nav-btn" id="prev-btn" ${index === 0 ? 'disabled' : ''}>
-                        ← Предыдущее
-                    </button>
-                    <button class="nav-btn" id="next-btn" ${index === words.length - 1 ? 'disabled' : ''}>
-                        Следующее →
-                    </button>
-                </div>
-                <div class="counter">${index + 1} из ${words.length}</div>
-            `;
-
-            // Обработчики кнопок
-            document.getElementById('prev-btn').addEventListener('click', () => {
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    renderWord(currentIndex);
-                }
-            });
-
-            document.getElementById('next-btn').addEventListener('click', () => {
-                if (currentIndex < words.length - 1) {
-                    currentIndex++;
-                    renderWord(currentIndex);
-                }
-            });
-        }
-
-        // Экранирование HTML для безопасности
-        function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Получение данных словаря
-        async function fetchWords() {
-            showLoading();
-
-            try {
-                // Проверка инициализации Telegram WebApp
-                if (!tg) {
-                    if (!initTelegramWebApp()) {
-                        return;
-                    }
-                }
-
-                // Получаем ID пользователя
-                const user = tg.initDataUnsafe.user;
-                if (!user || !user.id) {
-                    throw new Error("Не удалось получить ID пользователя из Telegram");
-                }
-
-                const user_id = user.id;
-                if (DEBUG_MODE) console.log(`Fetching words for user: ${user_id}`);
-
-                // Формируем URL запроса
-                const apiUrl = `${BACKEND_URL}/api/words?user_id=${user_id}`;
-                if (DEBUG_MODE) console.log("API URL:", apiUrl);
-
-                // Выполняем запрос
-                const response = await fetch(apiUrl);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Ошибка сервера: ${response.status} - ${errorText}`);
-                }
-
-                words = await response.json();
-
-                if (DEBUG_MODE) console.log("Received words:", words);
-
-                if (words.length > 0) {
-                    currentIndex = 0;
-                    renderWord(0);
-                } else {
-                    showEmptyState();
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки слов:', error);
-                showErrorState(error.message);
-
-                // Для отладки: попробуем загрузить тестовые данные
-                if (DEBUG_MODE) {
-                    setTimeout(() => {
-                        console.warn("Using test data for debugging");
-                        words = [
-                            {word: "apple", part_of_speech: "noun", translation: "яблоко"},
-                            {word: "run", part_of_speech: "verb", translation: "бежать"},
-                            {word: "beautiful", part_of_speech: "adjective", translation: "красивый"}
-                        ];
-                        renderWord(0);
-                    }, 3000);
-                }
+            const dictionary = JSON.parse(localStorage.getItem('dictionary'));
+            const resultDiv = document.getElementById('searchResult');
+            
+            if (dictionary[word]) {
+                resultDiv.innerHTML = `<strong>${word}:</strong> ${dictionary[word]}`;
+            } else {
+                resultDiv.innerHTML = `Слово "<strong>${word}</strong>" не найдено в словаре`;
             }
         }
 
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            // Инициализируем Telegram WebApp
-            initTelegramWebApp();
+        // Показать/скрыть все слова
+        function toggleWords() {
+            const wordsDiv = document.getElementById('allWords');
+            wordsDiv.classList.toggle('hidden');
+            
+            if (!wordsDiv.classList.contains('hidden')) {
+                displayAllWords();
+            }
+        }
 
-            // Загружаем слова
-            fetchWords();
-        });
+        // Отображение всех слов
+        function displayAllWords() {
+            const dictionary = JSON.parse(localStorage.getItem('dictionary'));
+            const tbody = document.getElementById('wordsList');
+            tbody.innerHTML = '';
+
+            for (const [word, translation] of Object.entries(dictionary)) {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${word}</td>
+                    <td>${translation}</td>
+                    <td>
+                        <button onclick="deleteWord('${word}')">Удалить</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+        }
+
+        // Удаление слова
+        function deleteWord(word) {
+            const dictionary = JSON.parse(localStorage.getItem('dictionary'));
+            delete dictionary[word];
+            localStorage.setItem('dictionary', JSON.stringify(dictionary));
+            displayAllWords();
+            alert(`Слово "${word}" удалено из словаря`);
+        }
+
+        // Инициализация при загрузке
+        window.onload = function() {
+            initDictionary();
+        };
     </script>
 </body>
 </html>
