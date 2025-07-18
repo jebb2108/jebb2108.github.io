@@ -185,6 +185,10 @@
             transform: translateY(0);
         }
         
+        .btn-secondary {
+            background: linear-gradient(to bottom, #5a6268, #4a545c);
+        }
+        
         /* Результаты */
         #searchResult {
             margin-top: 25px;
@@ -303,6 +307,34 @@
             background: linear-gradient(to right, #c62828, #d32f2f);
         }
         
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #2e7d32;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         /* Подвал */
         .book-footer {
             text-align: center;
@@ -342,7 +374,7 @@
                 <i class="fas fa-book"></i> Мой словарь
             </div>
             <div class="user-info">
-                Пользователь ID: <span id="userId">12345</span>
+                Пользователь ID: <span id="userId">загрузка...</span>
             </div>
         </div>
         
@@ -356,6 +388,11 @@
             <div class="bookmark" data-page="all-words">
                 <i class="fas fa-book-open"></i> Весь словарь
             </div>
+        </div>
+        
+        <!-- Индикатор загрузки -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
         </div>
         
         <!-- Страница добавления слова -->
@@ -386,7 +423,7 @@
                 <input type="text" id="translation" placeholder="Введите перевод">
             </div>
             
-            <button class="btn" onclick="addWord()">
+            <button class="btn" id="addWordBtn">
                 <i class="fas fa-plus"></i> Добавить в словарь
             </button>
         </div>
@@ -396,10 +433,10 @@
             <h2 class="page-title">Поиск перевода</h2>
             
             <div class="input-row">
-                <div class="input-group">
+                <div class="input-group" style="flex: 3;">
                     <input type="text" id="searchWord" placeholder="Введите слово для поиска">
                 </div>
-                <button class="btn" onclick="findTranslation()">
+                <button class="btn" id="searchBtn" style="flex: 1;">
                     <i class="fas fa-search"></i> Найти
                 </button>
             </div>
@@ -408,10 +445,10 @@
                 <div class="result-card">
                     <h3>Результат поиска</h3>
                     <div class="word-info">
-                        <div><strong>Слово:</strong> <span id="resultWord">hello</span></div>
-                        <div><strong>Часть речи:</strong> <span id="resultPos">noun</span></div>
+                        <div><strong>Слово:</strong> <span id="resultWord"></span></div>
+                        <div><strong>Часть речи:</strong> <span id="resultPos"></span></div>
                     </div>
-                    <p><strong>Перевод:</strong> <span id="resultTranslation">привет</span></p>
+                    <p><strong>Перевод:</strong> <span id="resultTranslation"></span></p>
                 </div>
             </div>
         </div>
@@ -420,7 +457,14 @@
         <div id="all-words" class="page">
             <h2 class="page-title">Весь словарь</h2>
             
-            <div class="table-container">
+            <button class="btn btn-secondary" id="refreshWordsBtn">
+                <i class="fas fa-sync"></i> Обновить список
+            </button>
+            
+            <div class="table-container" id="wordsTableContainer">
+                <div class="loading-overlay" id="wordsLoading">
+                    <div class="spinner"></div>
+                </div>
                 <table id="wordsTable">
                     <thead>
                         <tr>
@@ -431,36 +475,7 @@
                         </tr>
                     </thead>
                     <tbody id="wordsList">
-                        <tr>
-                            <td>book</td>
-                            <td>Существительное</td>
-                            <td>книга</td>
-                            <td class="actions">
-                                <button class="delete-btn">
-                                    <i class="fas fa-trash"></i> Удалить
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>run</td>
-                            <td>Глагол</td>
-                            <td>бежать</td>
-                            <td class="actions">
-                                <button class="delete-btn">
-                                    <i class="fas fa-trash"></i> Удалить
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>beautiful</td>
-                            <td>Прилагательное</td>
-                            <td>красивый</td>
-                            <td class="actions">
-                                <button class="delete-btn">
-                                    <i class="fas fa-trash"></i> Удалить
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- Слова будут добавляться сюда -->
                     </tbody>
                 </table>
             </div>
@@ -474,15 +489,31 @@
     <div class="notification" id="notification"></div>
 
     <script>
-        // Инициализация страницы
+        // Базовый URL API (замените на ваш реальный URL)
+        const API_BASE_URL = 'https://your-backend-domain.com';
+        
+        // Элементы DOM
+        const userIdElement = document.getElementById('userId');
+        const wordsListElement = document.getElementById('wordsList');
+        const notificationElement = document.getElementById('notification');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const wordsLoading = document.getElementById('wordsLoading');
+        
+        // Переменные состояния
+        let currentUserId = null;
+        let wordsData = [];
+        
+        // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
             // Получаем параметры URL
             const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('user_id');
+            currentUserId = urlParams.get('user_id');
             
-            // Устанавливаем ID пользователя
-            if (userId) {
-                document.getElementById('userId').textContent = userId;
+            if (currentUserId) {
+                userIdElement.textContent = currentUserId;
+            } else {
+                showNotification('Ошибка: Не указан ID пользователя', 'error');
+                userIdElement.textContent = 'не определен';
             }
             
             // Настройка закладок
@@ -503,13 +534,79 @@
                     // Показываем выбранную страницу
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.add('active');
+                    
+                    // Если выбрана страница со словами, загружаем их
+                    if (pageId === 'all-words') {
+                        loadWords();
+                    }
                 });
             });
+            
+            // Назначаем обработчики кнопок
+            document.getElementById('addWordBtn').addEventListener('click', addWord);
+            document.getElementById('searchBtn').addEventListener('click', findTranslation);
+            document.getElementById('refreshWordsBtn').addEventListener('click', loadWords);
         });
         
-        // Функция добавления слова
-        function addWord() {
-            const word = document.getElementById('newWord').value.trim();
+        // ================ API ФУНКЦИИ ================ //
+        
+        // Загрузка слов пользователя
+        async function loadWords() {
+            if (!currentUserId) return;
+            
+            try {
+                wordsLoading.style.display = 'flex';
+                wordsListElement.innerHTML = '';
+                
+                // Запрос к API
+                const response = await fetch(`${API_BASE_URL}/api/words?user_id=${currentUserId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                
+                wordsData = await response.json();
+                
+                if (wordsData.length === 0) {
+                    wordsListElement.innerHTML = '<tr><td colspan="4" style="text-align: center;">Словарь пуст</td></tr>';
+                } else {
+                    wordsData.forEach(word => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${word.word}</td>
+                            <td>${getPartOfSpeechName(word.part_of_speech)}</td>
+                            <td>${word.translation}</td>
+                            <td class="actions">
+                                <button class="delete-btn" data-id="${word.id}">
+                                    <i class="fas fa-trash"></i> Удалить
+                                </button>
+                            </td>
+                        `;
+                        wordsListElement.appendChild(row);
+                    });
+                    
+                    // Добавляем обработчики для новых кнопок удаления
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const wordId = this.getAttribute('data-id');
+                            deleteWord(wordId);
+                        });
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки слов:', error);
+                wordsListElement.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #c62828;">Ошибка загрузки данных</td></tr>';
+                showNotification('Ошибка загрузки слов из словаря', 'error');
+            } finally {
+                wordsLoading.style.display = 'none';
+            }
+        }
+        
+        // Добавление нового слова
+        async function addWord() {
+            const word = document.getElementById('newWord').value.trim().toLowerCase();
+            const partOfSpeech = document.getElementById('partOfSpeech').value;
             const translation = document.getElementById('translation').value.trim();
             
             if (!word || !translation) {
@@ -517,53 +614,154 @@
                 return;
             }
             
-            // В реальном приложении здесь будет запрос к API
-            showNotification(`Слово "${word}" добавлено в словарь!`, 'success');
+            if (!currentUserId) {
+                showNotification('Ошибка: Не указан ID пользователя', 'error');
+                return;
+            }
             
-            // Очищаем поля
-            document.getElementById('newWord').value = '';
-            document.getElementById('translation').value = '';
+            try {
+                loadingOverlay.style.display = 'flex';
+                
+                // Запрос к API
+                const response = await fetch(`${API_BASE_URL}/api/words`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        word: word,
+                        part_of_speech: partOfSpeech,
+                        translation: translation
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Ошибка HTTP: ${response.status}`);
+                }
+                
+                // Очистка полей
+                document.getElementById('newWord').value = '';
+                document.getElementById('translation').value = '';
+                
+                showNotification(`Слово "${word}" добавлено в словарь!`, 'success');
+                
+                // Обновляем список слов
+                if (document.getElementById('all-words').classList.contains('active')) {
+                    loadWords();
+                }
+                
+            } catch (error) {
+                console.error('Ошибка добавления слова:', error);
+                showNotification(`Ошибка: ${error.message}`, 'error');
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
         }
         
-        // Функция поиска слова
-        function findTranslation() {
-            const word = document.getElementById('searchWord').value.trim();
-            
+        // Поиск перевода
+        async function findTranslation() {
+            const word = document.getElementById('searchWord').value.trim().toLowerCase();
             if (!word) {
                 showNotification('Введите слово для поиска', 'error');
                 return;
             }
             
-            // В реальном приложении здесь будет запрос к API
-            document.getElementById('resultWord').textContent = word;
-            document.getElementById('resultPos').textContent = 'noun';
-            document.getElementById('resultTranslation').textContent = 'пример перевода';
-            document.getElementById('searchResult').style.display = 'block';
+            if (!currentUserId) {
+                showNotification('Ошибка: Не указан ID пользователя', 'error');
+                return;
+            }
             
-            showNotification(`Найдено слово "${word}"`, 'success');
+            try {
+                loadingOverlay.style.display = 'flex';
+                
+                // Запрос к API
+                const response = await fetch(`${API_BASE_URL}/api/words/search?user_id=${currentUserId}&word=${encodeURIComponent(word)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result && result.word) {
+                    document.getElementById('resultWord').textContent = result.word;
+                    document.getElementById('resultPos').textContent = getPartOfSpeechName(result.part_of_speech);
+                    document.getElementById('resultTranslation').textContent = result.translation;
+                    document.getElementById('searchResult').style.display = 'block';
+                } else {
+                    document.getElementById('resultWord').textContent = word;
+                    document.getElementById('resultPos').textContent = 'не найдено';
+                    document.getElementById('resultTranslation').textContent = 'Слово не найдено в словаре';
+                    document.getElementById('searchResult').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Ошибка поиска слова:', error);
+                showNotification('Ошибка при поиске слова', 'error');
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
         }
         
-        // Функция удаления слова
-        function deleteWord() {
-            // В реальном приложении здесь будет запрос к API
-            showNotification('Слово успешно удалено', 'success');
+        // Удаление слова
+        async function deleteWord(wordId) {
+            if (!confirm('Вы уверены, что хотите удалить это слово?')) return;
+            
+            if (!currentUserId) {
+                showNotification('Ошибка: Не указан ID пользователя', 'error');
+                return;
+            }
+            
+            try {
+                loadingOverlay.style.display = 'flex';
+                
+                // Запрос к API
+                const response = await fetch(`${API_BASE_URL}/api/words/${wordId}?user_id=${currentUserId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                
+                showNotification('Слово успешно удалено', 'success');
+                
+                // Обновляем список слов
+                loadWords();
+                
+            } catch (error) {
+                console.error('Ошибка удаления слова:', error);
+                showNotification('Ошибка при удалении слова', 'error');
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+        
+        // ================ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ================ //
+        
+        // Преобразование кода части речи в читаемое название
+        function getPartOfSpeechName(code) {
+            const names = {
+                'noun': 'Существительное',
+                'verb': 'Глагол',
+                'adjective': 'Прилагательное',
+                'adverb': 'Наречие',
+                'other': 'Другое'
+            };
+            return names[code] || code;
         }
         
         // Показать уведомление
         function showNotification(message, type) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type} show`;
+            notificationElement.textContent = message;
+            notificationElement.className = `notification ${type} show`;
             
             setTimeout(() => {
-                notification.classList.remove('show');
+                notificationElement.classList.remove('show');
             }, 3000);
         }
-        
-        // Обработчики для кнопок удаления
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', deleteWord);
-        });
     </script>
 </body>
 </html>
